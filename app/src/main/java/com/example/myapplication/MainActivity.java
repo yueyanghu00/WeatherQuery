@@ -227,6 +227,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initCity(){
+        localCity = getLocation();
+        Log.d("localCity", "initCity: "+localCity);
         List<String> citys = load_city();
         for(String line:citys){
             cityList.add(line);
@@ -235,11 +237,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("hyy", "city: good");
     }
 
-    private void getLocation(){
-        //1.获取位置管理器
+    private String getLocation(){
+        //生成位置管理器实例
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Log.d("TAG", "getLocation: ");
-        //2.获取位置提供器，GPS或是NetWork
+        //2.获取GPS
         List<String> providers = locationManager.getProviders(true);
 
         if (providers.contains(LocationManager.GPS_PROVIDER)) {
@@ -248,9 +250,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.v("TAG", "定位方式GPS");
         }else {
             Toast.makeText(this, "没有可用的GPS", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
-
+        String ret="";
         //判断是否已经有权限
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED ||
@@ -263,16 +265,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //获取位置
             Location location = locationManager.getLastKnownLocation(locationProvider);
             if (location!=null){
-                getAddress(location);
-
+                ret = getAddress(location);
             }
         }
+        return ret;
     }
 
 
+
     //获取地址信息:城市、街道等信息
-    private List<Address> getAddress(Location location) {
+    private String getAddress(Location location) {
         List<Address> result = null;
+        String ret = "";
         try {
             if (location != null) {
                 Geocoder gc = new Geocoder(this, Locale.getDefault());
@@ -281,14 +285,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 for(Address add:result){
                     Log.d("TAG", "getAddress: "+add.getLocality());
-
+                    ret=add.getLocality();
                 }
 
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return ret;
     }
 
 }
