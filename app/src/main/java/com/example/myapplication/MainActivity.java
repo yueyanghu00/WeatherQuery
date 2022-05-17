@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -40,8 +41,10 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private List<String> cityList = new ArrayList<>();
     private List<Forecast> showList = new ArrayList<>();
-    private int height;
     private InformationAdapter adapter = null;
+    public static final int LOCATION_CODE = 301;
+    private LocationManager locationManager;
+    private String locationProvider = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
