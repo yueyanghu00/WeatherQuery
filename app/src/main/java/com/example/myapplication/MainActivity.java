@@ -3,12 +3,19 @@ package com.example.myapplication;
 import androidx.annotation.LongDef;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,14 +53,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int LOCATION_CODE = 301;
     private LocationManager locationManager;
     private String locationProvider = null;
+    private String localCity = "北京市";
+    private Forecast localWeather = null;
+    TextView textViewLocalCity;
+    TextView textViewLocalWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button buttonInputWeight = findViewById(R.id.button_input_city);
+        Button buttonInputWeight = (Button)findViewById(R.id.button_input_city);
         Button sendRequest = (Button) findViewById(R.id.button_refresh);
+        textViewLocalCity = (TextView)findViewById(R.id.local_city);
+        textViewLocalWeather = (TextView)findViewById(R.id.local_weather);
         buttonInputWeight.setOnClickListener(this);
         sendRequest.setOnClickListener( this);
 
@@ -65,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new MyItemTouchCallBack(adapter));
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
+//        getLocation();
 
     }
 
@@ -120,8 +134,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                int jud=0;
+                textViewLocalCity.setText(localCity);
+                textViewLocalWeather.setText(response.get(0).getWeatherShow());
                 showList.clear();
                 for(Forecast weather:response) {
+                    if(jud==0){jud=1;continue;}
                     showList.add(weather);
                 }
                 adapter.notifyDataSetChanged();
@@ -143,8 +161,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try{
             out = openFileOutput("citys", Context.MODE_PRIVATE);
             writer = new BufferedWriter(new OutputStreamWriter(out));
+            int jud=0;
             for(String city : cityList){
-                Log.d("hyy", "save_city: "+city);
+                if(jud==0){jud=1; continue;}
+                Log.d("save", "save_city: "+city);
                 writer.write(city+"\n");
             }
         }
@@ -165,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FileInputStream in = null;
         BufferedReader reader = null;
         List<String> content = new ArrayList<>();
+        content.add(localCity);
         try{
             in = openFileInput("citys");
             reader = new BufferedReader(new InputStreamReader(in));
@@ -212,6 +233,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         sendRequestWithOkHttp();
         Log.d("hyy", "city: good");
+    }
+
+    private void getLocation(){
+        //1.获取位置管理器
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Log.d("TAG", "getLocation: ");
+        //2.获取位置提供器，GPS或是NetWork
+        List<String> providers = locationManager.getProviders(true);
+
+        if (providers.contains(LocationManager.GPS_PROVIDER)) {
+            //如果是GPS
+            locationProvider = LocationManager.GPS_PROVIDER;
+            Log.v("TAG", "定位方式GPS");
+        }else {
+            Toast.makeText(this, "没有可用的GPS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //判断是否已经有权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            //没有则请求权限
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_CODE);
+        } else {
+            //获取位置
+            Location location = locationManager.getLastKnownLocation(locationProvider);
+            if (location!=null){
+                getAddress(location);
+
+            }
+        }
+    }
+
+
+    //获取地址信息:城市、街道等信息
+    private List<Address> getAddress(Location location) {
+        List<Address> result = null;
+        try {
+            if (location != null) {
+                Geocoder gc = new Geocoder(this, Locale.getDefault());
+                result = gc.getFromLocation(location.getLatitude(),
+                        location.getLongitude(), 1);
+
+                for(Address add:result){
+                    Log.d("TAG", "getAddress: "+add.getLocality());
+
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 }

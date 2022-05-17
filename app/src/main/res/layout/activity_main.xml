@@ -8,7 +8,64 @@
     android:orientation="vertical"
     android:background="#eeeeee"
     >
-    <!--天气显示-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#eeeeee"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/little"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="  本地天气  "/>
+    </LinearLayout>
+    <!--本地天气显示-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#eeeeee"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/local_city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:background="@drawable/information_item_up"
+            android:layout_marginTop="0dp"
+            android:layout_marginHorizontal="5dp"
+            android:gravity="center_vertical"
+            android:text="good"
+            />
+        <TextView
+            android:id="@+id/local_weather"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:textSize="16sp"
+            android:background="@drawable/information_item_down"
+            android:layout_marginBottom="5dp"
+            android:layout_marginHorizontal="5dp"
+            android:gravity="top"
+            android:text="adsfasdfasdfas"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#eeeeee"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/little"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="  关注城市天气  "/>
+    </LinearLayout>
+    <!--关注天气显示-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

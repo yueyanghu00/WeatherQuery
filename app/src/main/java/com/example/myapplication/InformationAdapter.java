@@ -26,13 +26,13 @@ public class InformationAdapter
     private MainActivity mmainActivity;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView date;
-        TextView data;
+        TextView city;
+        TextView weather;
 
         public ViewHolder(View view) {
             super(view);
-            date = (TextView) view.findViewById(R.id.information_date);
-            data = (TextView) view.findViewById(R.id.information_data);
+            city = (TextView) view.findViewById(R.id.city);
+            weather = (TextView) view.findViewById(R.id.weather);
         }
     }
 
@@ -52,8 +52,8 @@ public class InformationAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Forecast weather = mShowList.get(position);
-        holder.date.setText(weather.getCity());
-        holder.data.setText(weather.getWeatherShow());
+        holder.city.setText(weather.getCity());
+        holder.weather.setText(weather.getWeatherShow());
         Log.d("onBindViewHolder","good");
     }
 
@@ -63,8 +63,9 @@ public class InformationAdapter
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d("revmoe", "onClick: "+String.valueOf(position));
                         mShowList.remove(position);
-                        mCityList.remove(position);
+                        mCityList.remove(position+1);
                         notifyItemRemoved(position);
                         dialogInterface.dismiss();
                     }
